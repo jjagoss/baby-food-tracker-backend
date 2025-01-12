@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: baby_food_tracker_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=prod_db
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=baby_food_tracker_prod
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "3000:3000"
+    depends_on:
+      prod_db:
+        condition: service_healthy
+
+  prod_db:
+    container_name: baby_food_tracker_prod_db
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=baby_food_tracker_prod
+    volumes:
+      - prod_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  prod_postgres_data:
