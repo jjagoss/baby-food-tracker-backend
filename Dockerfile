@@ -14,9 +14,10 @@ COPY . .
 # Build TypeScript
 RUN npm run build
 
-# This is important - copy migrations to dist folder
+# Copy migrations to dist folder
 RUN cp -r src/migrations dist/
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+# Run migrations and then start the server
+CMD npm run migration:run && npm start
