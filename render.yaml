@@ -3,7 +3,7 @@ services:
     name: baby-food-tracker-api
     env: node
     buildCommand: npm ci && npm run build
-    startCommand: npm start
+    startCommand: npm run migration:run && npm start
     envVars:
       - key: NODE_ENV
         value: production
