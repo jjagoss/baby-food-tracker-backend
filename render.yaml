@@ -3,7 +3,8 @@ services:
     name: baby-food-tracker-api
     env: node
     buildCommand: npm ci && npm run build
-    startCommand: npm run migration:run && npm start
+    startCommand: npm start
+    preDeployCommand: npm run migration:run  # This will run before the service starts
     envVars:
       - key: NODE_ENV
         value: production
