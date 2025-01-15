@@ -3,33 +3,18 @@ services:
     name: baby-food-tracker-api
     env: node
     buildCommand: npm ci && npm run build
-    startCommand: npm start
+    startCommand: npm run migration:run && npm start
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DB_HOST
-        fromDatabase:
-          name: baby-food-tracker-db
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: baby-food-tracker-db
-          property: port
-      - key: DB_USER
-        fromDatabase:
-          name: baby-food-tracker-db
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: baby-food-tracker-db
-          property: password
-      - key: DB_NAME
-        fromDatabase:
-          name: baby-food-tracker-db
-          property: database
       - key: JWT_SECRET
         sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: baby-food-tracker-db
+          property: connectionString
 
 databases:
   - name: baby-food-tracker-db
     plan: free
+    ipAllowList: [] # optional (allows all)

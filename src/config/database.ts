@@ -16,21 +16,29 @@ const {
   DB_USER, 
   DB_PASSWORD, 
   DB_NAME,
-  TEST_DB_HOST,
-  TEST_DB_PORT,
-  TEST_DB_USER,
-  TEST_DB_PASSWORD,
-  TEST_DB_NAME
+  DATABASE_URL // Render provides this
 } = process.env;
 
 const getDbConfig = () => {
+  if (process.env.DATABASE_URL) {
+    // Parse the DATABASE_URL for Render deployment
+    const dbUrl = new URL(process.env.DATABASE_URL);
+    return {
+      host: dbUrl.hostname,
+      port: parseInt(dbUrl.port),
+      username: dbUrl.username,
+      password: dbUrl.password,
+      database: dbUrl.pathname.slice(1) // Remove leading '/'
+    };
+  }
+
   if (NODE_ENV === 'test') {
     return {
-      host: TEST_DB_HOST || 'localhost',
-      port: parseInt(TEST_DB_PORT || "5436"),
-      database: TEST_DB_NAME || 'baby_food_tracker_test',
-      username: TEST_DB_USER || 'postgres',
-      password: TEST_DB_PASSWORD || 'postgres'
+      host: 'localhost',
+      port: 5436,
+      database: 'baby_food_tracker_test',
+      username: 'postgres',
+      password: 'postgres'
     };
   }
 
@@ -60,9 +68,10 @@ export const AppDataSource = new DataSource({
   username: config.username,
   password: config.password,
   database: config.database,
-  synchronize: NODE_ENV === 'test',
-  logging: NODE_ENV === 'development',
+  synchronize: false, // Set to false for production
+  logging: NODE_ENV === "development",
   entities: [User, Child, FoodEntry],
   migrations: [path.join(__dirname, "..", "migrations", "*.{ts,js}")],
-  subscribers: []
+  subscribers: [],
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false // Enable SSL for Render
 });
