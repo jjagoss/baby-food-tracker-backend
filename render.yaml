@@ -2,8 +2,9 @@ services:
   - type: web
     name: baby-food-tracker-api
     env: node
-    buildCommand: npm ci && npm run build && npm run db:migrate:prod
+    buildCommand: npm ci && npm run build && cp -r src/migrations dist/
     startCommand: npm start
+    preDeployCommand: npm run migration:run
     envVars:
       - key: NODE_ENV
         value: production
