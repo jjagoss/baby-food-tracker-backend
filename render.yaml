@@ -3,7 +3,7 @@ services:
     name: baby-food-tracker-api
     env: node
     buildCommand: npm ci && npm run build
-    startCommand: npm run migration:run && npm start
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -17,4 +17,4 @@ services:
 databases:
   - name: baby-food-tracker-db
     plan: free
-    ipAllowList: [] # optional (allows all)
+    ipAllowList: []

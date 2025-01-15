@@ -9,19 +9,16 @@ import dotenv from 'dotenv';
 const envFile = process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env';
 dotenv.config({ path: envFile });
 
-const { 
-  NODE_ENV,
-  DB_HOST, 
-  DB_PORT, 
-  DB_USER, 
-  DB_PASSWORD, 
-  DB_NAME,
-  DATABASE_URL // Render provides this
-} = process.env;
+console.log('Available environment variables:', {
+  NODE_ENV: process.env.NODE_ENV,
+  DATABASE_URL: process.env.DATABASE_URL ? 'Present' : 'Not present',
+  // Log other relevant variables but mask sensitive data
+});
 
 const getDbConfig = () => {
+  // If DATABASE_URL is present (Render production environment)
   if (process.env.DATABASE_URL) {
-    // Parse the DATABASE_URL for Render deployment
+    console.log('Using DATABASE_URL for connection');
     const dbUrl = new URL(process.env.DATABASE_URL);
     return {
       host: dbUrl.hostname,
@@ -32,7 +29,10 @@ const getDbConfig = () => {
     };
   }
 
-  if (NODE_ENV === 'test') {
+  console.log('Using local database configuration');
+  
+  // Test environment
+  if (process.env.NODE_ENV === 'test') {
     return {
       host: 'localhost',
       port: 5436,
@@ -42,36 +42,41 @@ const getDbConfig = () => {
     };
   }
 
+  // Development environment (fallback)
   return {
-    host: DB_HOST || 'localhost',
-    port: parseInt(DB_PORT || "5435"),
-    database: DB_NAME || 'baby_food_tracker',
-    username: DB_USER || 'postgres',
-    password: DB_PASSWORD || 'postgres'
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || "5435"),
+    database: process.env.DB_NAME || 'baby_food_tracker',
+    username: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || 'postgres'
   };
 };
 
 const config = getDbConfig();
 
-console.log('Database configuration:', {
-  environment: NODE_ENV,
+console.log('Selected database configuration:', {
+  environment: process.env.NODE_ENV,
   host: config.host,
   port: config.port,
   database: config.database,
-  username: config.username
+  username: config.username,
+  usingSSL: !!process.env.DATABASE_URL
 });
 
 export const AppDataSource = new DataSource({
   type: "postgres",
-  host: config.host,
-  port: config.port,
-  username: config.username,
-  password: config.password,
-  database: config.database,
-  synchronize: false, // Set to false for production
-  logging: NODE_ENV === "development",
+  url: process.env.DATABASE_URL, // Add direct URL support
+  ...(!process.env.DATABASE_URL ? {
+    host: config.host,
+    port: config.port,
+    username: config.username,
+    password: config.password,
+    database: config.database,
+  } : {}),
+  synchronize: false,
+  logging: process.env.NODE_ENV === "development",
   entities: [User, Child, FoodEntry],
   migrations: [path.join(__dirname, "..", "migrations", "*.{ts,js}")],
   subscribers: [],
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false // Enable SSL for Render
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
