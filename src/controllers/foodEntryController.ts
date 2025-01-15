@@ -1,13 +1,8 @@
 import { Response } from "express";
 import { AppDataSource } from "../config/database";
-import { TestDataSource } from "../config/test-database";
 import { FoodEntry } from "../entities/FoodEntry";
 import { Child } from "../entities/Child";
 import { AuthRequest } from "../middleware/auth";
-
-const getDataSource = () => {
-  return process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
-};
 
 export const createFoodEntry = async (req: AuthRequest, res: Response) => {
   try {
@@ -21,7 +16,7 @@ export const createFoodEntry = async (req: AuthRequest, res: Response) => {
     }
 
     // Check if child exists and belongs to user
-    const childRepository = getDataSource().getRepository(Child);
+    const childRepository = AppDataSource.getRepository(Child);
     const child = await childRepository.findOne({
       where: { 
         id: childId,
@@ -33,7 +28,7 @@ export const createFoodEntry = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: "Child not found" });
     }
 
-    const foodEntryRepository = getDataSource().getRepository(FoodEntry);
+    const foodEntryRepository = AppDataSource.getRepository(FoodEntry);
     const foodEntry = foodEntryRepository.create({
       foodId,
       triedDate: new Date(triedDate),
@@ -54,7 +49,7 @@ export const getFoodEntries = async (req: AuthRequest, res: Response) => {
     const { childId } = req.params;
 
     // Check if child belongs to user
-    const childRepository = getDataSource().getRepository(Child);
+    const childRepository = AppDataSource.getRepository(Child);
     const child = await childRepository.findOne({
       where: { 
         id: childId,
@@ -66,7 +61,7 @@ export const getFoodEntries = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: "Child not found" });
     }
 
-    const foodEntryRepository = getDataSource().getRepository(FoodEntry);
+    const foodEntryRepository = AppDataSource.getRepository(FoodEntry);
     const foodEntries = await foodEntryRepository.find({
       where: { child: { id: childId } },
       order: { triedDate: 'DESC' }
@@ -84,7 +79,7 @@ export const updateFoodEntry = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { notes } = req.body;
 
-    const foodEntryRepository = getDataSource().getRepository(FoodEntry);
+    const foodEntryRepository = AppDataSource.getRepository(FoodEntry);
     const foodEntry = await foodEntryRepository.findOne({
       where: { id },
       relations: ['child', 'child.user']
@@ -111,7 +106,7 @@ export const deleteFoodEntry = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
-    const foodEntryRepository = getDataSource().getRepository(FoodEntry);
+    const foodEntryRepository = AppDataSource.getRepository(FoodEntry);
     const foodEntry = await foodEntryRepository.findOne({
       where: { id },
       relations: ['child', 'child.user']

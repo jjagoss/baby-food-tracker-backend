@@ -3,12 +3,8 @@ import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { AppDataSource } from "../config/database";
-import { TestDataSource } from "../config/test-database";
 import { User } from "../entities/User";
 
-const getDataSource = () => {
-  return process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
-};
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -21,7 +17,7 @@ export const register = async (req: Request, res: Response) => {
       });
     }
 
-    const userRepository = getDataSource().getRepository(User);
+    const userRepository = AppDataSource.getRepository(User);
 
     const existingUser = await userRepository.findOne({ where: { email } });
     if (existingUser) {
@@ -57,7 +53,7 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    const userRepository = getDataSource().getRepository(User);
+    const userRepository = AppDataSource.getRepository(User);
 
     const user = await userRepository.findOne({ where: { email } });
     if (!user) {

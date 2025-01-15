@@ -1,5 +1,5 @@
 // src/test/child.test.ts
-import { TestDataSource } from "../config/test-database";
+import { AppDataSource as TestDataSource } from "../config/database";
 import { Child } from "../entities/Child";
 import request from 'supertest';
 import { app } from "../app";

@@ -1,5 +1,5 @@
 // src/test/user.test.ts
-import { TestDataSource } from "../config/test-database";
+import { AppDataSource as TestDataSource } from "../config/database";
 import { User } from "../entities/User";
 import request from 'supertest';
 import { app } from "../app";

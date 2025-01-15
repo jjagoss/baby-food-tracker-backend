@@ -1,4 +1,4 @@
-import { TestDataSource } from "../config/test-database";
+import { AppDataSource as TestDataSource } from "../config/database";
 import { FoodEntry } from "../entities/FoodEntry";
 import { Child } from "../entities/Child";
 import request from 'supertest';

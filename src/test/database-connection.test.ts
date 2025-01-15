@@ -1,4 +1,4 @@
-import { TestDataSource } from "../config/test-database";
+import { AppDataSource } from "../config/database";
 import { User } from "../entities/User";
 import { 
   initializeTestEnvironment, 
@@ -21,13 +21,13 @@ describe('Database Connection', () => {
   });
 
   it('should connect to the test database', async () => {
-    expect(TestDataSource.isInitialized).toBe(true);
+    expect(AppDataSource.isInitialized).toBe(true);
   });
 
   it('should be able to create a user in the database', async () => {
     const { user } = await createTestUser();
     
-    const userRepository = TestDataSource.getRepository(User);
+    const userRepository = AppDataSource.getRepository(User);
     const savedUser = await userRepository.findOne({ 
       where: { email: 'test@example.com' } 
     });
@@ -37,7 +37,7 @@ describe('Database Connection', () => {
   });
 
   it('should confirm tables exist using raw query', async () => {
-    const result = await TestDataSource.query(`
+    const result = await AppDataSource.query(`
       SELECT table_name 
       FROM information_schema.tables 
       WHERE table_schema = 'public'

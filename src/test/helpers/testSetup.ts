@@ -1,4 +1,4 @@
-import { TestDataSource } from "../../config/test-database";
+import { AppDataSource } from "../../config/database";
 import { User } from "../../entities/User";
 import { Child } from "../../entities/Child";
 import { FoodEntry } from "../../entities/FoodEntry";
@@ -13,15 +13,15 @@ export const initializeTestEnvironment = async () => {
   
   try {
     // If there's an existing connection, close it
-    if (TestDataSource.isInitialized) {
-      await TestDataSource.destroy();
+    if (AppDataSource.isInitialized) {
+      await AppDataSource.destroy();
     }
     
     // Initialize new connection
-    await TestDataSource.initialize();
+    await AppDataSource.initialize();
     
     // Drop and recreate schema
-    await TestDataSource.synchronize(true);
+    await AppDataSource.synchronize(true);
     
     console.log('Test environment initialized');
   } catch (error) {
@@ -32,13 +32,13 @@ export const initializeTestEnvironment = async () => {
 
 // Clear all test data
 export const clearTestData = async () => {
-  if (!TestDataSource.isInitialized) {
-    await TestDataSource.initialize();
+  if (!AppDataSource.isInitialized) {
+    await AppDataSource.initialize();
   }
 
   try {
     // Drop and recreate all tables
-    await TestDataSource.synchronize(true);
+    await AppDataSource.synchronize(true);
     
     console.log('Test data cleared');
   } catch (error) {
@@ -50,8 +50,8 @@ export const clearTestData = async () => {
 // Close test connection
 export const closeTestConnection = async () => {
   try {
-    if (TestDataSource.isInitialized) {
-      await TestDataSource.destroy();
+    if (AppDataSource.isInitialized) {
+      await AppDataSource.destroy();
       console.log('Test connection closed');
     }
   } catch (error) {
@@ -65,7 +65,7 @@ export const createTestUser = async (
   email: string = 'test@example.com',
   password: string = 'password123'
 ): Promise<{ user: User; token: string }> => {
-  const userRepository = TestDataSource.getRepository(User);
+  const userRepository = AppDataSource.getRepository(User);
   
   const hashedPassword = await bcrypt.hash(password, 8);
   const user = await userRepository.save(
@@ -86,7 +86,7 @@ export const createTestChild = async (
   name: string = 'Test Child',
   dateOfBirth: Date = new Date('2023-01-01')
 ): Promise<Child> => {
-  const childRepository = TestDataSource.getRepository(Child);
+  const childRepository = AppDataSource.getRepository(Child);
   
   return await childRepository.save(
     childRepository.create({
@@ -104,7 +104,7 @@ export const createTestFoodEntry = async (
   triedDate: Date = new Date(),
   notes: string = 'Test notes'
 ): Promise<FoodEntry> => {
-  const foodEntryRepository = TestDataSource.getRepository(FoodEntry);
+  const foodEntryRepository = AppDataSource.getRepository(FoodEntry);
   
   return await foodEntryRepository.save(
     foodEntryRepository.create({

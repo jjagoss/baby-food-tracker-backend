@@ -1,13 +1,8 @@
 // src/controllers/childController.ts
 import { Request, Response } from "express";
 import { AppDataSource } from "../config/database";
-import { TestDataSource } from "../config/test-database";
 import { Child } from "../entities/Child";
 import { AuthRequest } from "../middleware/auth";
-
-const getDataSource = () => {
-  return process.env.NODE_ENV === 'test' ? TestDataSource : AppDataSource;
-};
 
 export const createChild = async (req: AuthRequest, res: Response) => {
   try {
@@ -20,7 +15,7 @@ export const createChild = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const childRepository = getDataSource().getRepository(Child);
+    const childRepository = AppDataSource.getRepository(Child);
     
     const child = childRepository.create({
       name,
@@ -38,7 +33,7 @@ export const createChild = async (req: AuthRequest, res: Response) => {
 
 export const getChildren = async (req: AuthRequest, res: Response) => {
   try {
-    const childRepository = getDataSource().getRepository(Child);
+    const childRepository = AppDataSource.getRepository(Child);
     
     const children = await childRepository.find({
       where: { user: { id: req.user.id } },
@@ -60,7 +55,7 @@ export const getChild = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: "Child not found" });
     }
 
-    const childRepository = getDataSource().getRepository(Child);
+    const childRepository = AppDataSource.getRepository(Child);
     
     const child = await childRepository.findOne({
       where: { 
@@ -83,7 +78,7 @@ export const getChild = async (req: AuthRequest, res: Response) => {
 
 export const deleteChild = async (req: AuthRequest, res: Response) => {
   try {
-    const childRepository = getDataSource().getRepository(Child);
+    const childRepository = AppDataSource.getRepository(Child);
 
     const child = await childRepository.findOne({
       where: { 

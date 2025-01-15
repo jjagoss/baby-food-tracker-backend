@@ -5,7 +5,9 @@ import { FoodEntry } from "../entities/FoodEntry";
 import * as path from 'path';
 import dotenv from 'dotenv';
 
-dotenv.config();
+// Load environment variables based on NODE_ENV
+const envFile = process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env';
+dotenv.config({ path: envFile });
 
 const { 
   NODE_ENV,
@@ -13,36 +15,32 @@ const {
   DB_PORT, 
   DB_USER, 
   DB_PASSWORD, 
-  DB_NAME 
+  DB_NAME,
+  TEST_DB_HOST,
+  TEST_DB_PORT,
+  TEST_DB_USER,
+  TEST_DB_PASSWORD,
+  TEST_DB_NAME
 } = process.env;
 
 const getDbConfig = () => {
-  switch(NODE_ENV) {
-    case 'production':
-      return {
-        host: DB_HOST || 'prod_db',
-        port: parseInt(DB_PORT || "5432"),
-        database: 'baby_food_tracker_prod',
-        username: DB_USER,
-        password: DB_PASSWORD
-      };
-    case 'test':
-      return {
-        host: 'localhost',
-        port: 5436,
-        database: 'baby_food_tracker_test',
-        username: 'postgres',
-        password: 'postgres'
-      };
-    default:
-      return {
-        host: 'localhost',
-        port: 5435,
-        database: 'baby_food_tracker',
-        username: 'postgres',
-        password: 'postgres'
-      };
+  if (NODE_ENV === 'test') {
+    return {
+      host: TEST_DB_HOST || 'localhost',
+      port: parseInt(TEST_DB_PORT || "5436"),
+      database: TEST_DB_NAME || 'baby_food_tracker_test',
+      username: TEST_DB_USER || 'postgres',
+      password: TEST_DB_PASSWORD || 'postgres'
+    };
   }
+
+  return {
+    host: DB_HOST || 'localhost',
+    port: parseInt(DB_PORT || "5435"),
+    database: DB_NAME || 'baby_food_tracker',
+    username: DB_USER || 'postgres',
+    password: DB_PASSWORD || 'postgres'
+  };
 };
 
 const config = getDbConfig();

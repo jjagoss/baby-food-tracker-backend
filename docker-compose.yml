@@ -5,15 +5,15 @@ services:
     container_name: baby_food_tracker_db
     image: postgres:14-alpine
     ports:
-      - "5435:5432"
+      - "${DB_PORT}:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: baby_food_tracker
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -22,18 +22,13 @@ services:
     container_name: baby_food_tracker_test_db
     image: postgres:14-alpine
     ports:
-      - "5436:5432"
+      - "5436:5432"  # Keeping this fixed for test DB
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: baby_food_tracker_test
+      POSTGRES_USER: ${TEST_DB_USER}
+      POSTGRES_PASSWORD: ${TEST_DB_PASSWORD}
+      POSTGRES_DB: ${TEST_DB_NAME}
     tmpfs: 
-      - /var/lib/postgresql/data:rw,noexec,nosuid,size=2G # Using tmpfs for faster test database
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - /var/lib/postgresql/data:rw,noexec,nosuid,size=2G
 
 volumes:
   pgdata:
